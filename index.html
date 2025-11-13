@@ -242,71 +242,40 @@
             display: block;
         }
 
-        /* Tab Navigation */
-        .tabs {
-            display: flex;
-            gap: var(--space-m);
-            margin-bottom: var(--spacing-card);
-            justify-content: center;
-        }
-
-        .tab-button {
-            background: var(--button-secondary);
-            color: var(--text-primary);
-            border: 2px solid var(--surface-border);
-            padding: var(--space-m) var(--space-xxl);
-            border-radius: var(--radius-button);
-            cursor: pointer;
-            font: var(--font-button-small);
-            transition: all 0.2s;
-        }
-
-        .tab-button:hover {
-            background: var(--button-secondary-hover);
-        }
-
-        .tab-button.active {
-            background: var(--button-primary);
-            color: var(--text-on-invert);
-            border-color: var(--button-primary);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         /* Feed Styles */
         .feed-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: var(--spacing-card);
+            padding: var(--space-xl) 0;
         }
 
         .create-post-btn {
             background: var(--button-primary);
             color: var(--text-on-invert);
             border: none;
-            padding: var(--space-m) var(--space-xl);
+            padding: var(--space-l) var(--space-xxl);
             border-radius: var(--radius-button);
             cursor: pointer;
-            font: var(--font-button-small);
-            box-shadow: var(--shadow);
+            font-size: 1.125rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             transition: all 0.2s;
+            min-width: 200px;
         }
 
         .create-post-btn:hover {
             background: var(--button-primary-hover);
             transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         }
 
         .create-post-btn:active {
             background: var(--button-primary-pressed);
             transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .feed-container {
@@ -1128,13 +1097,7 @@
             <p class="subtitle">Music Prototype</p>
         </header>
 
-        <!-- Tab Navigation -->
-        <div class="tabs">
-            <button class="tab-button active" data-tab="feed">Feed</button>
-            <button class="tab-button" data-tab="search">Search Music</button>
-        </div>
-
-        <!-- Feed Tab -->
+        <!-- Feed -->
         <div class="tab-content active" id="feedTab">
             <div class="feed-header">
                 <button class="create-post-btn" id="createPostBtn">+ Create Post</button>
@@ -1146,24 +1109,6 @@
                     <p>Be the first to share a post!</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Search Tab -->
-        <div class="tab-content" id="searchTab">
-            <div class="search-container">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search for tracks, artists, or albums..."
-                    autocomplete="off"
-                >
-                <button id="searchButton">Search</button>
-            </div>
-
-            <div class="loading" id="loading">Searching...</div>
-            <div class="no-results" id="noResults">No results found. Try a different search term.</div>
-
-            <div class="results-container" id="results"></div>
         </div>
     </div>
 
@@ -1415,21 +1360,6 @@
                 e.preventDefault();
                 searchTracksInModal(modalSearchInput.value);
             }
-        });
-
-        // Tab switching
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const tabName = button.dataset.tab;
-
-                // Update active tab button
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                // Update active tab content
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                document.getElementById(tabName + 'Tab').classList.add('active');
-            });
         });
 
         // Modal handlers
