@@ -1475,6 +1475,7 @@
             `;
 
             try {
+                console.log('Fetching from Nsuna GraphQL API...');
                 const response = await fetch('https://stage-api.nsuna.com/query', {
                     method: 'POST',
                     headers: {
@@ -1483,10 +1484,21 @@
                     body: JSON.stringify({ query })
                 });
 
+                console.log('Response status:', response.status);
                 const data = await response.json();
-                return data.data.homeScreenTiles.tiles
+                console.log('GraphQL response:', data);
+
+                if (data.errors) {
+                    console.error('GraphQL errors:', data.errors);
+                    return [];
+                }
+
+                const posts = data.data.homeScreenTiles.tiles
                     .map(tile => tile.post)
                     .filter(post => post !== null);
+
+                console.log('Filtered non-null posts:', posts.length);
+                return posts;
             } catch (error) {
                 console.error('Error fetching Nsuna posts:', error);
                 return [];
@@ -1516,18 +1528,26 @@
         // Load posts from Nsuna API and merge with music data
         async function loadPosts() {
             try {
+                console.log('Loading posts...');
                 const [nsunaPosts, musicMap] = await Promise.all([
                     fetchNsunaPosts(),
                     fetchMusicMappings()
                 ]);
 
+                console.log('Nsuna posts fetched:', nsunaPosts.length, nsunaPosts);
+                console.log('Music mappings:', musicMap);
+
                 // Filter posts to only show those with image content
                 const postsWithImages = nsunaPosts.filter(post => {
-                    return post.contents && post.contents.some(content =>
+                    const hasImage = post.contents && post.contents.some(content =>
                         content.content.contentType &&
                         content.content.contentType.startsWith('image/')
                     );
+                    console.log('Post', post.id, 'has image:', hasImage, post.contents);
+                    return hasImage;
                 });
+
+                console.log('Posts with images:', postsWithImages.length);
 
                 if (postsWithImages.length > 0) {
                     emptyFeed.style.display = 'none';
@@ -1542,6 +1562,8 @@
                 }
             } catch (error) {
                 console.error('Error loading posts:', error);
+                emptyFeed.style.display = 'block';
+                feedContainer.innerHTML = '';
             }
         }
 
