@@ -1688,8 +1688,19 @@
             // Play the track (new track or auto-play)
             activeAudio.src = track.preview;
             activeAudio.loop = false; // Disable loop, we handle crossfade manually
-            activeAudio.play();
-            fadeIn(activeAudio);
+
+            // Handle autoplay - browsers block it without user interaction
+            const playPromise = activeAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    fadeIn(activeAudio);
+                }).catch(error => {
+                    // Autoplay was prevented - this is normal for auto-scroll
+                    if (!isAutoPlay) {
+                        console.error('Playback failed:', error);
+                    }
+                });
+            }
 
             playerAlbumArt.src = track.album.cover_medium;
             playerTitle.textContent = track.title;
@@ -1947,6 +1958,11 @@
 
         // Seek functionality
         progressBar.addEventListener('click', (e) => {
+            // Check if audio is loaded and has valid duration
+            if (!activeAudio.src || !isFinite(activeAudio.duration) || activeAudio.duration === 0) {
+                return; // Can't seek if no audio loaded or duration not ready
+            }
+
             const rect = progressBar.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
             activeAudio.currentTime = percent * activeAudio.duration;
