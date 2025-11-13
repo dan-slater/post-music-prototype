@@ -1390,9 +1390,8 @@
             modalLoading.classList.remove('show');
         }
 
-        createPostBtn.addEventListener('click', () => {
-            createPostModal.classList.add('show');
-        });
+        // Note: createPostBtn removed - posts now come from Nsuna, not created locally
+        // Modal is now opened via "Add Music" buttons on each post
 
         closeModal.addEventListener('click', () => {
             createPostModal.classList.remove('show');
