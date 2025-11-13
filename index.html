@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nsuna Post Music Prototype</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Brand Colors */
+            --brand-1: #99390E;
+            --brand-2: #CB311A;
+            --brand-3: #D43D27;
+            --brand-4: #EE543E;
+            --brand-5: #F85F49;
+            --brand-tr-10: #CB311A1A;
+
+            /* Secondary Colors */
+            --secondary-1: #0D2555;
+            --secondary-2: #0B2E71;
+            --secondary-3: #1B45AD;
+            --secondary-4: #3662B5;
+            --secondary-5: #5081E4;
+            --secondary-tr-10: #5081E41A;
+
+            /* Neutrals */
+            --neutral-0: #FFFFFF;
+            --neutral-100: #F8F8F9;
+            --neutral-200: #E8E8E8;
+            --neutral-300: #B3B5C0;
+            --neutral-400: #84868E;
+            --neutral-500: #2A2C33;
+            --neutral-600: #1A1B1F;
+            --neutral-0-60: #FFFFFF99;
+            --neutral-0-20: #FFFFFF33;
+            --neutral-600-20: #1A1B1F12;
+
+            /* System Colors */
+            --success: #51B467;
+            --error: #ED4F45;
+            --warning: #FFB018;
+            --success-subtle: #51B4671A;
+            --error-subtle: #ED4F451A;
+
+            /* Surface (Light Mode) */
+            --surface-1: var(--neutral-100);
+            --surface-2: var(--neutral-0);
+            --surface-3: var(--neutral-100);
+            --surface-4: var(--neutral-600-20);
+            --surface-accent: var(--brand-5);
+            --surface-accent-subtle: var(--brand-tr-10);
+            --surface-border: var(--neutral-200);
+            --surface-highlighted: var(--secondary-tr-10);
+            --surface-invert: var(--neutral-600);
+
+            /* Text Colors */
+            --text-primary: var(--neutral-600);
+            --text-secondary: var(--neutral-400);
+            --text-placeholder: var(--neutral-300);
+            --text-accent: var(--brand-4);
+            --text-link: var(--secondary-3);
+            --text-on-invert: var(--neutral-0);
+
+            /* Button Colors */
+            --button-primary: var(--brand-3);
+            --button-primary-hover: var(--brand-4);
+            --button-primary-pressed: var(--brand-2);
+            --button-secondary: var(--neutral-0);
+            --button-secondary-hover: var(--neutral-100);
+            --button-link: var(--secondary-3);
+
+            /* Spacing */
+            --space-xxs: 2px;
+            --space-xs: 4px;
+            --space-s: 8px;
+            --space-m: 12px;
+            --space-ml: 16px;
+            --space-l: 20px;
+            --space-xl: 24px;
+            --space-xxl: 32px;
+
+            --spacing-edges: var(--space-ml);
+            --spacing-card: var(--space-l);
+            --spacing-items-small: var(--space-xs);
+            --spacing-items-med: var(--space-s);
+            --spacing-items-large: var(--space-ml);
+            --spacing-items-xlarge: var(--space-xl);
+
+            /* Border Radius */
+            --radius-button: 12px;
+            --radius-input: 12px;
+            --radius-popup: 12px;
+            --radius-items: 8px;
+
+            /* Shadows */
+            --shadow: 0px 8px 32px rgba(0, 0, 0, 0.05);
+
+            /* Typography */
+            --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-h0: 600 40px/40px var(--font-family);
+            --font-h1: 600 24px/24px var(--font-family);
+            --font-h2: 600 18px/24px var(--font-family);
+            --font-h3: 600 16px/20px var(--font-family);
+            --font-h4: 600 14px/20px var(--font-family);
+            --font-h5: 600 12px/20px var(--font-family);
+            --font-button-big: 600 16px/24px var(--font-family);
+            --font-button-small: 600 14px/16px var(--font-family);
+            --font-body: 400 16px/24px var(--font-family);
+            --font-caption: 400 12px/20px var(--font-family);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font: var(--font-body);
+            background: var(--surface-1);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: var(--spacing-edges);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: var(--space-xxl);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-m);
+            margin-bottom: var(--space-m);
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+        }
+
+        h1 {
+            font: var(--font-h0);
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+
+        .subtitle {
+            font: var(--font-h3);
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 48px;
+                height: 48px;
+            }
+
+            .logo-container {
+                flex-direction: column;
+                gap: var(--space-s);
+            }
+        }
+
+        .search-container {
+            background: var(--surface-2);
+            border-radius: var(--radius-input);
+            padding: var(--space-m) var(--spacing-card);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: var(--space-m);
+            margin-bottom: var(--spacing-card);
+        }
+
+        #searchInput {
+            flex: 1;
+            border: none;
+            outline: none;
+            font: var(--font-body);
+            color: var(--text-primary);
+            background: transparent;
+            padding: var(--space-s);
+        }
+
+        #searchInput::placeholder {
+            color: var(--text-placeholder);
+        }
+
+        #searchButton {
+            background: var(--button-primary);
+            color: var(--text-on-invert);
+            border: none;
+            padding: var(--space-m) var(--space-xl);
+            border-radius: var(--radius-button);
+            cursor: pointer;
+            font: var(--font-button-small);
+            transition: background 0.2s;
+        }
+
+        #searchButton:hover {
+            background: var(--button-primary-hover);
+        }
+
+        #searchButton:active {
+            background: var(--button-primary-pressed);
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-secondary);
+            font: var(--font-h3);
+            margin: var(--spacing-card) 0;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--text-secondary);
+            font: var(--font-h3);
+            margin-top: var(--space-xxl);
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: var(--space-m);
+            margin-bottom: var(--spacing-card);
+            justify-content: center;
+        }
+
+        .tab-button {
+            background: var(--button-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--surface-border);
+            padding: var(--space-m) var(--space-xxl);
+            border-radius: var(--radius-button);
+            cursor: pointer;
+            font: var(--font-button-small);
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            background: var(--button-secondary-hover);
+        }
+
+        .tab-button.active {
+            background: var(--button-primary);
+            color: var(--text-on-invert);
+            border-color: var(--button-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Feed Styles */
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-card);
+        }
+
+        .create-post-btn {
+            background: var(--button-primary);
+            color: var(--text-on-invert);
+            border: none;
+            padding: var(--space-m) var(--space-xl);
+            border-radius: var(--radius-button);
+            cursor: pointer;
+            font: var(--font-button-small);
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+        }
+
+        .create-post-btn:hover {
+            background: var(--button-primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .create-post-btn:active {
+            background: var(--button-primary-pressed);
+            transform: translateY(0);
+        }
+
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-card);
+        }
+
+        .post-card {
+            background: var(--surface-2);
+            border-radius: var(--radius-popup);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .post-header {
+            padding: var(--spacing-edges);
+            display: flex;
+            align-items: center;
+            gap: var(--space-m);
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--button-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-on-invert);
+            font: var(--font-h3);
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font: var(--font-h4);
+            color: var(--text-primary);
+        }
+
+        .post-time {
+            font: var(--font-caption);
+            color: var(--text-secondary);
+        }
+
+        .post-caption {
+            padding: var(--spacing-edges);
+            color: var(--text-primary);
+            font: var(--font-body);
+            line-height: 1.5;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 500px;
+            object-fit: contain;
+            background: var(--surface-3);
+        }
+
+        .post-music {
+            padding: var(--spacing-edges);
+            background: var(--surface-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-edges);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .post-music:hover {
+            background: var(--surface-highlighted);
+        }
+
+        .post-music-art {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-items);
+            object-fit: cover;
+        }
+
+        .post-music-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .post-music-title {
+            font: var(--font-h4);
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .post-music-artist {
+            font: var(--font-caption);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .post-music-play-icon {
+            color: var(--text-accent);
+            font-size: 1.5em;
+        }
+
+        .post-actions {
+            padding: var(--spacing-edges);
+            display: flex;
+            gap: var(--spacing-card);
+            border-top: 1px solid var(--surface-border);
+        }
+
+        .post-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font: var(--font-body);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            transition: color 0.2s;
+        }
+
+        .post-action-btn:hover {
+            color: var(--text-accent);
+        }
+
+        .post-action-btn.liked {
+            color: var(--error);
+        }
+
+        /* Track Cards */
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-card);
+        }
+
+        .track-card {
+            background: var(--surface-2);
+            border-radius: var(--radius-popup);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .track-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .track-card.playing {
+            border: 3px solid var(--text-accent);
+            box-shadow: 0 0 20px var(--surface-accent-subtle);
+        }
+
+        .album-art-container {
+            position: relative;
+        }
+
+        .album-art {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            background: var(--button-primary);
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: var(--neutral-0-60);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        .track-card:hover .play-icon {
+            opacity: 1;
+        }
+
+        .play-icon::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 12px 0 12px 20px;
+            border-color: transparent transparent transparent var(--text-accent);
+            margin-left: var(--space-xs);
+        }
+
+        .track-info {
+            padding: var(--spacing-edges);
+        }
+
+        .track-title {
+            font: var(--font-h4);
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font: var(--font-body);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-album {
+            font: var(--font-caption);
+            color: var(--text-placeholder);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-duration {
+            color: var(--text-accent);
+            font: var(--font-caption);
+            margin-top: var(--space-xs);
+        }
+
+        /* Audio Player */
+        .audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--neutral-0-60);
+            backdrop-filter: blur(20px);
+            padding: var(--spacing-edges) var(--spacing-card);
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
+            display: none;
+            align-items: center;
+            gap: var(--spacing-edges);
+            z-index: 100;
+        }
+
+        .audio-player.show {
+            display: flex;
+        }
+
+        .player-album-art {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-items);
+            object-fit: cover;
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .player-title {
+            font: var(--font-h4);
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-artist {
+            font: var(--font-caption);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--space-m);
+        }
+
+        .control-button {
+            background: var(--button-primary);
+            color: var(--text-on-invert);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .control-button:hover {
+            background: var(--button-primary-hover);
+            transform: scale(1.05);
+        }
+
+        .control-button:active {
+            background: var(--button-primary-pressed);
+            transform: scale(0.95);
+        }
+
+        .progress-container {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font: var(--font-caption);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--surface-border);
+            border-radius: var(--space-xs);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--button-primary);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--neutral-600-20);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-card);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface-2);
+            border-radius: var(--radius-popup);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--spacing-card);
+            border-bottom: 1px solid var(--surface-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font: var(--font-h2);
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-secondary);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--surface-3);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-card);
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-card);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-s);
+            color: var(--text-primary);
+            font: var(--font-h4);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-m);
+            border: 2px solid var(--surface-border);
+            border-radius: var(--radius-input);
+            font: var(--font-body);
+            color: var(--text-primary);
+            background: var(--surface-2);
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--button-primary);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-placeholder);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: var(--space-m);
+            border: 2px solid var(--surface-border);
+            border-radius: var(--radius-input);
+            font: var(--font-body);
+            color: var(--text-primary);
+            background: var(--surface-2);
+            resize: vertical;
+            min-height: 100px;
+            font-family: var(--font-family);
+            transition: border-color 0.2s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--button-primary);
+        }
+
+        .form-textarea::placeholder {
+            color: var(--text-placeholder);
+        }
+
+        .file-upload {
+            border: 2px dashed var(--surface-border);
+            border-radius: var(--radius-input);
+            padding: var(--space-xxl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .file-upload:hover {
+            border-color: var(--button-primary);
+            background: var(--surface-highlighted);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-preview {
+            margin-top: var(--spacing-edges);
+            border-radius: var(--radius-items);
+            overflow: hidden;
+        }
+
+        .file-preview img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+        }
+
+        .selected-track {
+            margin-top: var(--spacing-edges);
+            padding: var(--spacing-edges);
+            background: var(--surface-3);
+            border-radius: var(--radius-items);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-edges);
+        }
+
+        .selected-track img {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-items);
+        }
+
+        .selected-track-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .selected-track-title {
+            font: var(--font-h4);
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .selected-track-artist {
+            font: var(--font-caption);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .remove-track-btn {
+            background: var(--error);
+            color: var(--text-on-invert);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .remove-track-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-card);
+            border-top: 1px solid var(--surface-border);
+            display: flex;
+            gap: var(--space-m);
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: var(--space-m) var(--space-xl);
+            border: none;
+            border-radius: var(--radius-button);
+            font: var(--font-button-small);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--button-primary);
+            color: var(--text-on-invert);
+        }
+
+        .btn-primary:hover {
+            background: var(--button-primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            background: var(--button-primary-pressed);
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--button-secondary);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--button-secondary-hover);
+        }
+
+        .select-track-hint {
+            text-align: center;
+            color: var(--text-accent);
+            margin-top: var(--space-m);
+            font: var(--font-caption);
+        }
+
+        /* Modal Music Search */
+        #modalMusicSearch {
+            margin-top: var(--spacing-edges);
+        }
+
+        .modal-search-container {
+            display: flex;
+            gap: var(--space-m);
+            margin-bottom: var(--spacing-edges);
+        }
+
+        .modal-search-container input {
+            flex: 1;
+            padding: var(--space-m);
+            border: 2px solid var(--surface-border);
+            border-radius: var(--radius-input);
+            font: var(--font-body);
+            color: var(--text-primary);
+            background: var(--surface-2);
+            transition: border-color 0.2s;
+        }
+
+        .modal-search-container input:focus {
+            outline: none;
+            border-color: var(--button-primary);
+        }
+
+        .modal-search-container input::placeholder {
+            color: var(--text-placeholder);
+        }
+
+        .modal-search-container button {
+            background: var(--button-primary);
+            color: var(--text-on-invert);
+            border: none;
+            padding: var(--space-m) var(--spacing-card);
+            border-radius: var(--radius-button);
+            cursor: pointer;
+            font: var(--font-button-small);
+            transition: all 0.2s;
+        }
+
+        .modal-search-container button:hover {
+            background: var(--button-primary-hover);
+            transform: scale(1.02);
+        }
+
+        .modal-search-container button:active {
+            background: var(--button-primary-pressed);
+            transform: scale(0.98);
+        }
+
+        .modal-loading {
+            display: none;
+            text-align: center;
+            color: var(--text-accent);
+            padding: var(--space-m);
+            font: var(--font-caption);
+        }
+
+        .modal-loading.show {
+            display: block;
+        }
+
+        .modal-search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-m);
+            margin-bottom: var(--spacing-edges);
+        }
+
+        .modal-track-card {
+            background: var(--surface-3);
+            border-radius: var(--radius-items);
+            padding: var(--space-m);
+            display: flex;
+            align-items: center;
+            gap: var(--space-m);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .modal-track-card:hover {
+            background: var(--surface-highlighted);
+            border-color: var(--button-primary);
+        }
+
+        .modal-track-card.selected {
+            border-color: var(--button-primary);
+            background: var(--surface-highlighted);
+        }
+
+        .modal-track-art {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-items);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .modal-track-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .modal-track-title {
+            font: var(--font-h5);
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modal-track-artist {
+            font: var(--font-caption);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modal-track-select {
+            background: var(--button-primary);
+            color: var(--text-on-invert);
+            border: none;
+            padding: var(--space-xs) var(--space-m);
+            border-radius: var(--radius-items);
+            cursor: pointer;
+            font: var(--font-button-small);
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .modal-track-select:hover {
+            background: var(--button-primary-hover);
+        }
+
+        .modal-track-select:active {
+            background: var(--button-primary-pressed);
+        }
+
+        /* Empty States */
+        .empty-feed {
+            text-align: center;
+            padding: 60px var(--spacing-card);
+            color: var(--text-secondary);
+        }
+
+        .empty-feed-icon {
+            font-size: 4em;
+            margin-bottom: var(--spacing-card);
+        }
+
+        .empty-feed-text {
+            font: var(--font-h3);
+            margin-bottom: var(--space-m);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font: var(--font-h1);
+            }
+
+            .results-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .album-art {
+                height: 150px;
+            }
+
+            .track-info {
+                padding: var(--space-m);
+            }
+
+            .track-title {
+                font-size: 0.9em;
+            }
+
+            .track-artist, .track-album {
+                font-size: 0.8em;
+            }
+
+            .audio-player {
+                flex-wrap: wrap;
+            }
+
+            .progress-container {
+                order: -1;
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo.svg" alt="Nsuna" class="logo">
+                <h1>Nsuna Post</h1>
+            </div>
+            <p class="subtitle">Music Prototype</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="feed">Feed</button>
+            <button class="tab-button" data-tab="search">Search Music</button>
+        </div>
+
+        <!-- Feed Tab -->
+        <div class="tab-content active" id="feedTab">
+            <div class="feed-header">
+                <button class="create-post-btn" id="createPostBtn">+ Create Post</button>
+            </div>
+            <div class="feed-container" id="feedContainer">
+                <div class="empty-feed" id="emptyFeed">
+                    <div class="empty-feed-icon">📭</div>
+                    <div class="empty-feed-text">No posts yet</div>
+                    <p>Be the first to share a post!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div class="tab-content" id="searchTab">
+            <div class="search-container">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search for tracks, artists, or albums..."
+                    autocomplete="off"
+                >
+                <button id="searchButton">Search</button>
+            </div>
+
+            <div class="loading" id="loading">Searching...</div>
+            <div class="no-results" id="noResults">No results found. Try a different search term.</div>
+
+            <div class="results-container" id="results"></div>
+        </div>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div class="modal" id="createPostModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create Post</div>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createPostForm">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input
+                            type="text"
+                            id="usernameInput"
+                            class="form-input"
+                            placeholder="Enter your username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Caption</label>
+                        <textarea
+                            id="captionInput"
+                            class="form-textarea"
+                            placeholder="What's on your mind?"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Add Image (Optional)</label>
+                        <div class="file-upload" id="fileUpload">
+                            <input type="file" id="imageInput" accept="image/*">
+                            <div>📷 Click to upload an image</div>
+                            <small style="color: #999;">Max 5MB</small>
+                        </div>
+                        <div class="file-preview" id="filePreview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Add Music (Optional)</label>
+                        <div id="selectedTrackContainer"></div>
+
+                        <div id="modalMusicSearch">
+                            <div class="modal-search-container">
+                                <input
+                                    type="text"
+                                    id="modalSearchInput"
+                                    placeholder="Search for tracks, artists, or albums..."
+                                    autocomplete="off"
+                                >
+                                <button type="button" id="modalSearchButton">Search</button>
+                            </div>
+                            <div class="modal-search-results" id="modalSearchResults"></div>
+                            <div class="modal-loading" id="modalLoading">Searching...</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelPost">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitPost">Post</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="audio-player" id="audioPlayer">
+        <img id="playerAlbumArt" class="player-album-art" src="" alt="Album art">
+        <div class="player-info">
+            <div class="player-title" id="playerTitle"></div>
+            <div class="player-artist" id="playerArtist"></div>
+        </div>
+        <div class="progress-container">
+            <div class="time-info">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:30</span>
+            </div>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button class="control-button" id="playPauseBtn">▶</button>
+        </div>
+    </div>
+
+    <audio id="audio"></audio>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const resultsContainer = document.getElementById('results');
+        const loading = document.getElementById('loading');
+        const noResults = document.getElementById('noResults');
+        const audio = document.getElementById('audio');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playerAlbumArt = document.getElementById('playerAlbumArt');
+        const playerTitle = document.getElementById('playerTitle');
+        const playerArtist = document.getElementById('playerArtist');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+
+        // Dual audio elements for crossfading
+        const audio1 = document.getElementById('audio');
+        const audio2 = document.createElement('audio');
+        audio2.loop = true;
+        let activeAudio = audio1;
+        let inactiveAudio = audio2;
+
+        let currentTrackCard = null;
+        let fadeOutInterval = null;
+        let fadeInInterval = null;
+        const FADE_DURATION = 1500; // 1.5 seconds for fade
+        const FADE_OUT_START_TIME = 2.5; // Start fade out 2.5 seconds before end for more overlap
+
+        // Social features
+        const API_BASE = 'http://localhost:3000/api';
+        let selectedTrack = null;
+        let selectedImageFile = null;
+
+        // DOM elements for social features
+        const createPostBtn = document.getElementById('createPostBtn');
+        const createPostModal = document.getElementById('createPostModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelPost = document.getElementById('cancelPost');
+        const submitPost = document.getElementById('submitPost');
+        const usernameInput = document.getElementById('usernameInput');
+        const captionInput = document.getElementById('captionInput');
+        const imageInput = document.getElementById('imageInput');
+        const fileUpload = document.getElementById('fileUpload');
+        const filePreview = document.getElementById('filePreview');
+        const selectedTrackContainer = document.getElementById('selectedTrackContainer');
+        const feedContainer = document.getElementById('feedContainer');
+        const emptyFeed = document.getElementById('emptyFeed');
+
+        // Modal search elements
+        const modalSearchInput = document.getElementById('modalSearchInput');
+        const modalSearchButton = document.getElementById('modalSearchButton');
+        const modalSearchResults = document.getElementById('modalSearchResults');
+        const modalLoading = document.getElementById('modalLoading');
+
+        // Modal music search functionality
+        function searchTracksInModal(query) {
+            if (!query.trim()) return;
+
+            modalLoading.classList.add('show');
+            modalSearchResults.innerHTML = '';
+
+            // Create unique callback name
+            const callbackName = 'deezerModalCallback_' + Date.now();
+
+            // Create callback function
+            window[callbackName] = function(data) {
+                modalLoading.classList.remove('show');
+
+                if (data.data && data.data.length > 0) {
+                    displayModalResults(data.data);
+                } else {
+                    modalSearchResults.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No results found</div>';
+                }
+
+                // Cleanup
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+
+            // Create script tag for JSONP request
+            const script = document.createElement('script');
+            script.src = `https://api.deezer.com/search?q=${encodeURIComponent(query)}&output=jsonp&callback=${callbackName}`;
+            script.onerror = function() {
+                modalLoading.classList.remove('show');
+                modalSearchResults.innerHTML = '<div style="text-align: center; color: #e74c3c; padding: 20px;">Error searching. Please try again.</div>';
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+
+            document.body.appendChild(script);
+        }
+
+        // Display search results in modal
+        function displayModalResults(tracks) {
+            modalSearchResults.innerHTML = '';
+
+            tracks.slice(0, 10).forEach(track => {
+                if (!track.preview) return;
+
+                const card = document.createElement('div');
+                card.className = 'modal-track-card';
+
+                card.innerHTML = `
+                    <img src="${track.album.cover_small}" alt="${track.album.title}" class="modal-track-art">
+                    <div class="modal-track-info">
+                        <div class="modal-track-title">${track.title}</div>
+                        <div class="modal-track-artist">${track.artist.name}</div>
+                    </div>
+                    <button class="modal-track-select">Select</button>
+                `;
+
+                // Select track on card click
+                card.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal-track-select') || e.target.closest('.modal-track-select')) {
+                        selectTrackFromModal(track);
+                    }
+                });
+
+                modalSearchResults.appendChild(card);
+            });
+        }
+
+        // Select track from modal search
+        function selectTrackFromModal(track) {
+            selectedTrack = track;
+            selectedTrackContainer.innerHTML = `
+                <div class="selected-track">
+                    <img src="${track.album.cover_medium}" alt="Album art">
+                    <div class="selected-track-info">
+                        <div class="selected-track-title">${track.title}</div>
+                        <div class="selected-track-artist">${track.artist.name}</div>
+                    </div>
+                    <button type="button" class="remove-track-btn">&times;</button>
+                </div>
+            `;
+
+            const removeBtn = selectedTrackContainer.querySelector('.remove-track-btn');
+            removeBtn.addEventListener('click', () => {
+                selectedTrack = null;
+                selectedTrackContainer.innerHTML = '';
+            });
+
+            // Clear search results and input
+            modalSearchResults.innerHTML = '';
+            modalSearchInput.value = '';
+        }
+
+        // Modal search button
+        modalSearchButton.addEventListener('click', () => {
+            searchTracksInModal(modalSearchInput.value);
+        });
+
+        // Modal search on enter key
+        modalSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchTracksInModal(modalSearchInput.value);
+            }
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+
+                // Update active tab button
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Update active tab content
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(tabName + 'Tab').classList.add('active');
+            });
+        });
+
+        // Modal handlers
+        function clearModalSearchResults() {
+            modalSearchInput.value = '';
+            modalSearchResults.innerHTML = '';
+            modalLoading.classList.remove('show');
+        }
+
+        createPostBtn.addEventListener('click', () => {
+            createPostModal.classList.add('show');
+        });
+
+        closeModal.addEventListener('click', () => {
+            createPostModal.classList.remove('show');
+            clearModalSearchResults();
+        });
+
+        cancelPost.addEventListener('click', () => {
+            createPostModal.classList.remove('show');
+            clearModalSearchResults();
+        });
+
+        // Close modal on backdrop click
+        createPostModal.addEventListener('click', (e) => {
+            if (e.target === createPostModal) {
+                createPostModal.classList.remove('show');
+                clearModalSearchResults();
+            }
+        });
+
+        // Image upload handling
+        fileUpload.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                selectedImageFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    filePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Load posts from backend
+        async function loadPosts() {
+            try {
+                const response = await fetch(`${API_BASE}/posts`);
+                const data = await response.json();
+
+                if (data.success && data.posts.length > 0) {
+                    emptyFeed.style.display = 'none';
+                    feedContainer.innerHTML = '';
+                    data.posts.forEach(post => renderPost(post));
+                } else {
+                    emptyFeed.style.display = 'block';
+                    feedContainer.innerHTML = '';
+                }
+            } catch (error) {
+                console.error('Error loading posts:', error);
+            }
+        }
+
+        // Render a post
+        function renderPost(post) {
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            postCard.dataset.postId = post.id;
+
+            const timeAgo = getTimeAgo(post.created_at);
+            const avatar = post.username.charAt(0).toUpperCase();
+
+            let html = `
+                <div class="post-header">
+                    <div class="post-avatar">${avatar}</div>
+                    <div class="post-user-info">
+                        <div class="post-username">${post.username}</div>
+                        <div class="post-time">${timeAgo}</div>
+                    </div>
+                </div>
+            `;
+
+            if (post.caption) {
+                html += `<div class="post-caption">${post.caption}</div>`;
+            }
+
+            if (post.image_url) {
+                html += `<img src="${post.image_url}" alt="Post image" class="post-image">`;
+            }
+
+            if (post.track_preview_url) {
+                html += `
+                    <div class="post-music" data-track='${JSON.stringify({
+                        title: post.track_title,
+                        artist: post.track_artist,
+                        preview: post.track_preview_url,
+                        album: { cover_medium: post.track_album_art, title: post.track_album },
+                        id: post.track_id
+                    })}'>
+                        <img src="${post.track_album_art}" alt="Album art" class="post-music-art">
+                        <div class="post-music-info">
+                            <div class="post-music-title">${post.track_title}</div>
+                            <div class="post-music-artist">${post.track_artist}</div>
+                        </div>
+                        <div class="post-music-play-icon">▶</div>
+                    </div>
+                `;
+
+                // Store track data on the post card for scroll detection
+                postCard.dataset.hasMusic = 'true';
+                postCard.dataset.trackData = JSON.stringify({
+                    title: post.track_title,
+                    artist: post.track_artist,
+                    preview: post.track_preview_url,
+                    album: { cover_medium: post.track_album_art, title: post.track_album },
+                    id: post.track_id
+                });
+            }
+
+            html += `
+                <div class="post-actions">
+                    <button class="post-action-btn like-btn" data-post-id="${post.id}">
+                        ❤ <span>${post.likes || 0}</span>
+                    </button>
+                </div>
+            `;
+
+            postCard.innerHTML = html;
+
+            // Add music play handler
+            const musicSection = postCard.querySelector('.post-music');
+            if (musicSection) {
+                musicSection.addEventListener('click', () => {
+                    const track = JSON.parse(musicSection.dataset.track);
+                    playTrackFromPost(track);
+                });
+            }
+
+            // Add like handler
+            const likeBtn = postCard.querySelector('.like-btn');
+            likeBtn.addEventListener('click', () => likePost(post.id, likeBtn));
+
+            feedContainer.appendChild(postCard);
+        }
+
+        // This function will be defined later with scroll support
+
+        // Like a post
+        async function likePost(postId, button) {
+            try {
+                const response = await fetch(`${API_BASE}/posts/${postId}/like`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    button.classList.add('liked');
+                    button.querySelector('span').textContent = data.post.likes;
+                }
+            } catch (error) {
+                console.error('Error liking post:', error);
+            }
+        }
+
+        // Submit new post
+        submitPost.addEventListener('click', async () => {
+            const username = usernameInput.value.trim();
+            const caption = captionInput.value.trim();
+
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+
+            submitPost.disabled = true;
+            submitPost.textContent = 'Posting...';
+
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+                if (caption) formData.append('caption', caption);
+                if (selectedImageFile) formData.append('image', selectedImageFile);
+
+                if (selectedTrack) {
+                    formData.append('track_id', selectedTrack.id);
+                    formData.append('track_title', selectedTrack.title);
+                    formData.append('track_artist', selectedTrack.artist.name);
+                    formData.append('track_album', selectedTrack.album.title);
+                    formData.append('track_preview_url', selectedTrack.preview);
+                    formData.append('track_album_art', selectedTrack.album.cover_medium);
+                }
+
+                const response = await fetch(`${API_BASE}/posts`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Reset form
+                    usernameInput.value = '';
+                    captionInput.value = '';
+                    imageInput.value = '';
+                    filePreview.innerHTML = '';
+                    selectedImageFile = null;
+                    selectedTrack = null;
+                    selectedTrackContainer.innerHTML = '';
+
+                    // Close modal
+                    createPostModal.classList.remove('show');
+
+                    // Reload posts and reinitialize auto-play
+                    loadPostsAndSetupAutoPlay();
+                } else {
+                    alert('Error creating post: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error creating post:', error);
+                alert('Error creating post. Make sure the server is running!');
+            } finally {
+                submitPost.disabled = false;
+                submitPost.textContent = 'Post';
+            }
+        });
+
+        // Add track to post
+        function addTrackToPost(track) {
+            selectedTrack = track;
+            selectedTrackContainer.innerHTML = `
+                <div class="selected-track">
+                    <img src="${track.album.cover_medium}" alt="Album art">
+                    <div class="selected-track-info">
+                        <div class="selected-track-title">${track.title}</div>
+                        <div class="selected-track-artist">${track.artist.name}</div>
+                    </div>
+                    <button type="button" class="remove-track-btn">&times;</button>
+                </div>
+            `;
+
+            const removeBtn = selectedTrackContainer.querySelector('.remove-track-btn');
+            removeBtn.addEventListener('click', () => {
+                selectedTrack = null;
+                selectedTrackContainer.innerHTML = '';
+            });
+
+            // Show modal and switch to feed tab
+            createPostModal.classList.add('show');
+        }
+
+        // Format time ago
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            return Math.floor(seconds / 86400) + 'd ago';
+        }
+
+        // Intersection Observer for auto-play on scroll
+        let currentlyPlayingPost = null;
+        let scrollObserver = null;
+
+        function setupScrollAutoPlay() {
+            // Clean up existing observer
+            if (scrollObserver) {
+                scrollObserver.disconnect();
+            }
+
+            // Create Intersection Observer with 50% threshold
+            scrollObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const postCard = entry.target;
+
+                    // Check if post has music and is in viewport (>50% visible)
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                        if (postCard.dataset.hasMusic === 'true') {
+                            const trackData = JSON.parse(postCard.dataset.trackData);
+
+                            // Only play if it's a different track or not playing
+                            if (currentlyPlayingPost !== postCard) {
+                                currentlyPlayingPost = postCard;
+                                playTrackFromPost(trackData, true); // Auto-play mode
+                            }
+                        }
+                    }
+                });
+            }, {
+                threshold: [0.5], // Trigger when 50% of post is visible
+                rootMargin: '0px' // No margin adjustment
+            });
+
+            // Observe all post cards with music
+            const posts = document.querySelectorAll('.post-card[data-has-music="true"]');
+            posts.forEach(post => {
+                scrollObserver.observe(post);
+            });
+        }
+
+        // Enhanced playTrackFromPost to support auto-play
+        function playTrackFromPost(track, isAutoPlay = false) {
+            // If manually clicking and same track is playing, pause it
+            if (!isAutoPlay && activeAudio.src === track.preview && !activeAudio.paused) {
+                activeAudio.pause();
+                inactiveAudio.pause();
+                playPauseBtn.textContent = '▶';
+                if (currentTrackCard) {
+                    currentTrackCard.classList.remove('playing');
+                }
+                currentTrackCard = null;
+                clearInterval(fadeOutInterval);
+                clearInterval(fadeInInterval);
+                currentlyPlayingPost = null;
+                return;
+            }
+
+            // Stop any inactive audio
+            inactiveAudio.pause();
+            inactiveAudio.currentTime = 0;
+
+            // Play the track (new track or auto-play)
+            activeAudio.src = track.preview;
+            activeAudio.loop = false; // Disable loop, we handle crossfade manually
+            activeAudio.play();
+            fadeIn(activeAudio);
+
+            playerAlbumArt.src = track.album.cover_medium;
+            playerTitle.textContent = track.title;
+            playerArtist.textContent = track.artist;
+            durationEl.textContent = '0:30';
+
+            audioPlayer.classList.add('show');
+            playPauseBtn.textContent = '⏸';
+        }
+
+        // Modified loadPosts to setup observer after posts are loaded
+        async function loadPostsAndSetupAutoPlay() {
+            await loadPosts();
+            // Setup scroll observer after posts are rendered
+            setTimeout(() => {
+                setupScrollAutoPlay();
+            }, 100);
+        }
+
+        // Load posts on page load
+        loadPostsAndSetupAutoPlay();
+
+        // Search functionality using JSONP (to avoid CORS issues)
+        function searchTracks(query) {
+            if (!query.trim()) return;
+
+            loading.classList.add('show');
+            noResults.classList.remove('show');
+            resultsContainer.innerHTML = '';
+
+            // Create unique callback name
+            const callbackName = 'deezerCallback_' + Date.now();
+
+            // Create callback function
+            window[callbackName] = function(data) {
+                loading.classList.remove('show');
+
+                if (data.data && data.data.length > 0) {
+                    displayResults(data.data);
+                } else {
+                    noResults.classList.add('show');
+                }
+
+                // Cleanup
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+
+            // Create script tag for JSONP request
+            const script = document.createElement('script');
+            script.src = `https://api.deezer.com/search?q=${encodeURIComponent(query)}&output=jsonp&callback=${callbackName}`;
+            script.onerror = function() {
+                loading.classList.remove('show');
+                alert('Error searching tracks. Please try again.');
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+
+            document.body.appendChild(script);
+        }
+
+        // Display search results
+        function displayResults(tracks) {
+            resultsContainer.innerHTML = '';
+
+            tracks.forEach(track => {
+                if (!track.preview) return; // Skip tracks without preview
+
+                const card = document.createElement('div');
+                card.className = 'track-card';
+                card.dataset.trackId = track.id;
+
+                card.innerHTML = `
+                    <div class="album-art-container">
+                        <img src="${track.album.cover_medium}" alt="${track.album.title}" class="album-art">
+                        <div class="play-icon"></div>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">${track.title}</div>
+                        <div class="track-artist">${track.artist.name}</div>
+                        <div class="track-album">${track.album.title}</div>
+                        <div class="track-duration">${formatDuration(track.duration)}</div>
+                        <button class="add-to-post-btn" style="
+                            margin-top: 10px;
+                            width: 100%;
+                            padding: 8px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: bold;
+                            transition: transform 0.2s;
+                        ">+ Add to Post</button>
+                    </div>
+                `;
+
+                // Play track on card click (but not button click)
+                card.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('add-to-post-btn')) {
+                        playTrack(track, card);
+                    }
+                });
+
+                // Add to post button
+                const addBtn = card.querySelector('.add-to-post-btn');
+                addBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addTrackToPost(track);
+                });
+
+                resultsContainer.appendChild(card);
+            });
+        }
+
+        // Fade in effect for specific audio element
+        function fadeIn(audioElement) {
+            clearInterval(fadeInInterval);
+
+            audioElement.volume = 0;
+            const startTime = Date.now();
+
+            fadeInInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / FADE_DURATION, 1);
+
+                audioElement.volume = progress;
+
+                if (progress >= 1) {
+                    clearInterval(fadeInInterval);
+                    audioElement.volume = 1;
+                }
+            }, 50);
+        }
+
+        // Fade out effect for specific audio element
+        function fadeOut(audioElement, callback) {
+            clearInterval(fadeOutInterval);
+            const startVolume = audioElement.volume;
+            const startTime = Date.now();
+
+            fadeOutInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / FADE_DURATION, 1);
+
+                audioElement.volume = startVolume * (1 - progress);
+
+                if (progress >= 1) {
+                    clearInterval(fadeOutInterval);
+                    audioElement.volume = 0;
+                    if (callback) callback();
+                }
+            }, 50);
+        }
+
+        // Play track
+        function playTrack(track, card) {
+            if (currentTrackCard) {
+                currentTrackCard.classList.remove('playing');
+            }
+
+            if (activeAudio.src === track.preview && !activeAudio.paused) {
+                activeAudio.pause();
+                inactiveAudio.pause();
+                playPauseBtn.textContent = '▶';
+                card.classList.remove('playing');
+                currentTrackCard = null;
+                clearInterval(fadeOutInterval);
+                clearInterval(fadeInInterval);
+                return;
+            }
+
+            // Stop any inactive audio
+            inactiveAudio.pause();
+            inactiveAudio.currentTime = 0;
+
+            activeAudio.src = track.preview;
+            activeAudio.loop = false; // Disable loop, we handle crossfade manually
+            activeAudio.play();
+            fadeIn(activeAudio);
+
+            playerAlbumArt.src = track.album.cover_medium;
+            playerTitle.textContent = track.title;
+            playerArtist.textContent = track.artist.name;
+            durationEl.textContent = '0:30';
+
+            audioPlayer.classList.add('show');
+            card.classList.add('playing');
+            currentTrackCard = card;
+            playPauseBtn.textContent = '⏸';
+        }
+
+        // Play/Pause control
+        playPauseBtn.addEventListener('click', () => {
+            if (activeAudio.paused) {
+                activeAudio.play();
+                fadeIn(activeAudio);
+                playPauseBtn.textContent = '⏸';
+            } else {
+                fadeOut(activeAudio, () => {
+                    activeAudio.pause();
+                    inactiveAudio.pause();
+                });
+                playPauseBtn.textContent = '▶';
+            }
+        });
+
+        // Progress bar update and crossfade handling
+        let isCrossfading = false;
+
+        // Setup timeupdate for both audio elements
+        function setupAudioTimeUpdate(audioElement) {
+            audioElement.addEventListener('timeupdate', () => {
+                // Only update UI for the active audio
+                if (audioElement !== activeAudio) return;
+
+                const progress = (audioElement.currentTime / audioElement.duration) * 100;
+                progressFill.style.width = `${progress}%`;
+                currentTimeEl.textContent = formatTime(audioElement.currentTime);
+
+                const timeRemaining = audioElement.duration - audioElement.currentTime;
+
+                // Start crossfade near the end
+                if (timeRemaining <= FADE_OUT_START_TIME && !isCrossfading && !audioElement.paused) {
+                    isCrossfading = true;
+
+                    // Setup the inactive audio with the same track at the beginning
+                    inactiveAudio.src = audioElement.src;
+                    inactiveAudio.currentTime = 0;
+                    inactiveAudio.volume = 0;
+                    inactiveAudio.play();
+
+                    // Start fade in on inactive audio
+                    fadeIn(inactiveAudio);
+
+                    // Start fade out on active audio
+                    fadeOut(audioElement, () => {
+                        // After fade out completes, stop the old audio
+                        audioElement.pause();
+                        audioElement.currentTime = 0;
+                    });
+
+                    // Swap active/inactive references
+                    const temp = activeAudio;
+                    activeAudio = inactiveAudio;
+                    inactiveAudio = temp;
+
+                    isCrossfading = false;
+                }
+            });
+        }
+
+        setupAudioTimeUpdate(audio1);
+        setupAudioTimeUpdate(audio2);
+
+        // Seek functionality
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            activeAudio.currentTime = percent * activeAudio.duration;
+            isCrossfading = false; // Reset crossfade state on seek
+            if (!activeAudio.paused && activeAudio.volume < 0.5) {
+                fadeIn(activeAudio); // Fade in if volume is low after seek
+            }
+        });
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Format duration
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Event listeners
+        searchButton.addEventListener('click', () => searchTracks(searchInput.value));
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchTracks(searchInput.value);
+            }
+        });
+
+        // Initial focus
+        searchInput.focus();
+    </script>
+</body>
+</html>

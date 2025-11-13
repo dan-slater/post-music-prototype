@@ -1,0 +1,34 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Mosquito body (vertical oval) -->
+  <ellipse cx="32" cy="36" rx="6" ry="12" fill="#1A1B1F"/>
+
+  <!-- Mosquito head -->
+  <circle cx="32" cy="22" r="5" fill="#2A2C33"/>
+
+  <!-- Proboscis (needle) -->
+  <path d="M32 17 L32 8" stroke="#84868E" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Wings (music note shape integrated) -->
+  <!-- Left wing with music note curve -->
+  <path d="M26 28 Q18 24 16 32 Q14 40 22 36 Q26 34 26 28 Z" fill="#F85F49" opacity="0.6"/>
+
+  <!-- Right wing with music note curve -->
+  <path d="M38 28 Q46 24 48 32 Q50 40 42 36 Q38 34 38 28 Z" fill="#EE543E" opacity="0.6"/>
+
+  <!-- Music note stem (as mosquito antenna) -->
+  <path d="M28 22 L24 14 L24 18" stroke="#D43D27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M36 22 L40 14 L40 18" stroke="#D43D27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Music note heads (as antenna tips) -->
+  <circle cx="24" cy="18" r="2.5" fill="#CB311A"/>
+  <circle cx="40" cy="18" r="2.5" fill="#CB311A"/>
+
+  <!-- Mosquito legs (styled as musical staffs) -->
+  <path d="M26 42 L20 48" stroke="#2A2C33" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M38 42 L44 48" stroke="#2A2C33" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M26 46 L18 52" stroke="#2A2C33" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M38 46 L46 52" stroke="#2A2C33" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Musical accent - treble clef hint in body -->
+  <path d="M32 32 Q34 34 32 36" stroke="#F85F49" stroke-width="1.5" fill="none" opacity="0.8"/>
+</svg>
