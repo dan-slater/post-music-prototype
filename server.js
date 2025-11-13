@@ -56,25 +56,21 @@ const db = new sqlite3.Database('posts.db', (err) => {
     }
 });
 
-// Create posts table
+// Create post_music table to map nsuna posts to music tracks
 db.run(`
-    CREATE TABLE IF NOT EXISTS posts (
+    CREATE TABLE IF NOT EXISTS post_music (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        caption TEXT,
-        image_url TEXT,
-        track_id TEXT,
+        post_id TEXT NOT NULL UNIQUE,
+        track_id TEXT NOT NULL,
         track_title TEXT,
         track_artist TEXT,
         track_album TEXT,
-        track_preview_url TEXT,
         track_album_art TEXT,
-        created_at INTEGER NOT NULL,
-        likes INTEGER DEFAULT 0
+        created_at INTEGER NOT NULL
     )
 `, (err) => {
     if (err) {
-        console.error('Error creating table:', err);
+        console.error('Error creating post_music table:', err);
     } else {
         console.log('Database initialized');
     }
@@ -82,118 +78,89 @@ db.run(`
 
 // API Routes
 
-// Get all posts (newest first)
-app.get('/api/posts', (req, res) => {
-    db.all('SELECT * FROM posts ORDER BY created_at DESC', [], (err, posts) => {
+// Get all post-music mappings
+app.get('/api/post-music', (req, res) => {
+    db.all('SELECT * FROM post_music ORDER BY created_at DESC', [], (err, mappings) => {
         if (err) {
-            console.error('Error fetching posts:', err);
+            console.error('Error fetching post-music mappings:', err);
             return res.status(500).json({ success: false, error: err.message });
         }
-        res.json({ success: true, posts });
+        res.json({ success: true, mappings });
     });
 });
 
-// Create a new post
-app.post('/api/posts', upload.single('image'), (req, res) => {
+// Get music for a specific post
+app.get('/api/post-music/:postId', (req, res) => {
+    const { postId } = req.params;
+    db.get('SELECT * FROM post_music WHERE post_id = ?', [postId], (err, mapping) => {
+        if (err) {
+            console.error('Error fetching post music:', err);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json({ success: true, mapping });
+    });
+});
+
+// Add or update music for a post
+app.post('/api/post-music', (req, res) => {
     const {
-        username,
-        caption,
+        post_id,
         track_id,
         track_title,
         track_artist,
         track_album,
-        track_preview_url,
         track_album_art
     } = req.body;
 
     // Validate required fields
-    if (!username) {
-        return res.status(400).json({ success: false, error: 'Username is required' });
+    if (!post_id || !track_id) {
+        return res.status(400).json({ success: false, error: 'post_id and track_id are required' });
     }
 
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
     const created_at = Date.now();
 
     const sql = `
-        INSERT INTO posts (
-            username, caption, image_url, track_id, track_title,
-            track_artist, track_album, track_preview_url, track_album_art, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO post_music (
+            post_id, track_id, track_title, track_artist,
+            track_album, track_album_art, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.run(sql, [
-        username,
-        caption || null,
-        image_url,
-        track_id || null,
+        post_id,
+        track_id,
         track_title || null,
         track_artist || null,
         track_album || null,
-        track_preview_url || null,
         track_album_art || null,
         created_at
     ], function(err) {
         if (err) {
-            console.error('Error creating post:', err);
+            console.error('Error adding music to post:', err);
             return res.status(500).json({ success: false, error: err.message });
         }
 
-        // Get the newly created post
-        db.get('SELECT * FROM posts WHERE id = ?', [this.lastID], (err, post) => {
+        // Get the newly created mapping
+        db.get('SELECT * FROM post_music WHERE post_id = ?', [post_id], (err, mapping) => {
             if (err) {
-                console.error('Error fetching new post:', err);
+                console.error('Error fetching mapping:', err);
                 return res.status(500).json({ success: false, error: err.message });
             }
-            res.json({ success: true, post });
+            res.json({ success: true, mapping });
         });
     });
 });
 
-// Like a post
-app.post('/api/posts/:id/like', (req, res) => {
-    const { id } = req.params;
+// Delete music from a post
+app.delete('/api/post-music/:postId', (req, res) => {
+    const { postId } = req.params;
 
-    db.run('UPDATE posts SET likes = likes + 1 WHERE id = ?', [id], (err) => {
+    db.run('DELETE FROM post_music WHERE post_id = ?', [postId], (err) => {
         if (err) {
-            console.error('Error liking post:', err);
+            console.error('Error deleting post music:', err);
             return res.status(500).json({ success: false, error: err.message });
         }
-
-        db.get('SELECT * FROM posts WHERE id = ?', [id], (err, post) => {
-            if (err) {
-                console.error('Error fetching post:', err);
-                return res.status(500).json({ success: false, error: err.message });
-            }
-            res.json({ success: true, post });
-        });
-    });
-});
-
-// Delete a post
-app.delete('/api/posts/:id', (req, res) => {
-    const { id } = req.params;
-
-    // Get post to delete image file
-    db.get('SELECT * FROM posts WHERE id = ?', [id], (err, post) => {
-        if (err) {
-            console.error('Error fetching post:', err);
-            return res.status(500).json({ success: false, error: err.message });
-        }
-
-        if (post && post.image_url) {
-            const imagePath = path.join(__dirname, post.image_url);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
-        }
-
-        db.run('DELETE FROM posts WHERE id = ?', [id], (err) => {
-            if (err) {
-                console.error('Error deleting post:', err);
-                return res.status(500).json({ success: false, error: err.message });
-            }
-            res.json({ success: true });
-        });
+        res.json({ success: true });
     });
 });
 

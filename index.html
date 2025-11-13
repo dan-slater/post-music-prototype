@@ -309,6 +309,30 @@
             justify-content: center;
             color: var(--text-on-invert);
             font: var(--font-h3);
+            flex-shrink: 0;
+        }
+
+        .post-avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .add-music-btn {
+            margin-left: auto;
+            background: var(--button-secondary);
+            border: 1px solid var(--surface-border);
+            padding: var(--space-s) var(--space-m);
+            border-radius: var(--radius-button);
+            font: var(--font-button-small);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-music-btn:hover {
+            background: var(--button-secondary-hover);
         }
 
         .post-user-info {
@@ -1099,14 +1123,11 @@
 
         <!-- Feed -->
         <div class="tab-content active" id="feedTab">
-            <div class="feed-header">
-                <button class="create-post-btn" id="createPostBtn">+ Create Post</button>
-            </div>
             <div class="feed-container" id="feedContainer">
                 <div class="empty-feed" id="emptyFeed">
                     <div class="empty-feed-icon">📭</div>
-                    <div class="empty-feed-text">No posts yet</div>
-                    <p>Be the first to share a post!</p>
+                    <div class="empty-feed-text">No posts from Nsuna yet</div>
+                    <p>Posts from your Nsuna feed will appear here!</p>
                 </div>
             </div>
         </div>
@@ -1408,16 +1429,113 @@
             }
         });
 
-        // Load posts from backend
-        async function loadPosts() {
+        // Fetch posts from Nsuna GraphQL API
+        async function fetchNsunaPosts() {
+            const query = `
+                query HomeScreenTilesPosts {
+                    homeScreenTiles(req: { limit: 10, type: Following, nextPage: null }) {
+                        nextPage
+                        tiles {
+                            post {
+                                postedByV2 {
+                                    ... on UserSummary {
+                                        firstName
+                                        lastName
+                                        profilePicturePath
+                                        socialMediaHandle
+                                    }
+                                }
+                                tags
+                                id
+                                caption
+                                contents {
+                                    id
+                                    userID
+                                    createdAt
+                                    content {
+                                        id
+                                        contentPath
+                                        contentType
+                                        contentStatus
+                                        streamPath
+                                        createdAt
+                                        metadata {
+                                            length
+                                            size
+                                            dimensions
+                                            rotation
+                                            location
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            `;
+
             try {
-                const response = await fetch(`${API_BASE}/posts`);
+                const response = await fetch('https://stage-api.nsuna.com/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                return data.data.homeScreenTiles.tiles
+                    .map(tile => tile.post)
+                    .filter(post => post !== null);
+            } catch (error) {
+                console.error('Error fetching Nsuna posts:', error);
+                return [];
+            }
+        }
+
+        // Fetch music mappings from local backend
+        async function fetchMusicMappings() {
+            try {
+                const response = await fetch(`${API_BASE}/post-music`);
                 const data = await response.json();
 
-                if (data.success && data.posts.length > 0) {
+                // Create a map of post_id -> music data
+                const musicMap = {};
+                if (data.success && data.mappings) {
+                    data.mappings.forEach(mapping => {
+                        musicMap[mapping.post_id] = mapping;
+                    });
+                }
+                return musicMap;
+            } catch (error) {
+                console.error('Error fetching music mappings:', error);
+                return {};
+            }
+        }
+
+        // Load posts from Nsuna API and merge with music data
+        async function loadPosts() {
+            try {
+                const [nsunaPosts, musicMap] = await Promise.all([
+                    fetchNsunaPosts(),
+                    fetchMusicMappings()
+                ]);
+
+                // Filter posts to only show those with image content
+                const postsWithImages = nsunaPosts.filter(post => {
+                    return post.contents && post.contents.some(content =>
+                        content.content.contentType &&
+                        content.content.contentType.startsWith('image/')
+                    );
+                });
+
+                if (postsWithImages.length > 0) {
                     emptyFeed.style.display = 'none';
                     feedContainer.innerHTML = '';
-                    data.posts.forEach(post => renderPost(post));
+                    postsWithImages.forEach(post => {
+                        const musicData = musicMap[post.id];
+                        renderPost(post, musicData);
+                    });
                 } else {
                     emptyFeed.style.display = 'block';
                     feedContainer.innerHTML = '';
@@ -1427,22 +1545,39 @@
             }
         }
 
-        // Render a post
-        function renderPost(post) {
+        // Render a post from Nsuna API
+        function renderPost(post, musicData) {
             const postCard = document.createElement('div');
             postCard.className = 'post-card';
             postCard.dataset.postId = post.id;
 
-            const timeAgo = getTimeAgo(post.created_at);
-            const avatar = post.username.charAt(0).toUpperCase();
+            const CDN_BASE = 'https://stage-cdn.nsuna.io/';
+            const user = post.postedByV2;
+            const firstName = user.firstName || '';
+            const lastName = user.lastName || '';
+            const username = user.socialMediaHandle || `${firstName} ${lastName}`.trim();
+            const avatar = firstName.charAt(0).toUpperCase() || 'U';
+            const profilePic = user.profilePicturePath ? `${CDN_BASE}${user.profilePicturePath}` : null;
+
+            // Get first image content
+            const imageContent = post.contents.find(c =>
+                c.content.contentType && c.content.contentType.startsWith('image/')
+            );
+            const imageUrl = imageContent ? `${CDN_BASE}${imageContent.content.contentPath}` : null;
+            const createdAt = imageContent ? new Date(imageContent.createdAt).getTime() : Date.now();
+            const timeAgo = getTimeAgo(createdAt);
 
             let html = `
                 <div class="post-header">
-                    <div class="post-avatar">${avatar}</div>
+                    ${profilePic ?
+                        `<img src="${profilePic}" alt="${username}" class="post-avatar-img">` :
+                        `<div class="post-avatar">${avatar}</div>`
+                    }
                     <div class="post-user-info">
-                        <div class="post-username">${post.username}</div>
+                        <div class="post-username">${username}</div>
                         <div class="post-time">${timeAgo}</div>
                     </div>
+                    <button class="add-music-btn" data-post-id="${post.id}">🎵 Add Music</button>
                 </div>
             `;
 
@@ -1450,46 +1585,35 @@
                 html += `<div class="post-caption">${post.caption}</div>`;
             }
 
-            if (post.image_url) {
-                html += `<img src="${post.image_url}" alt="Post image" class="post-image">`;
+            if (imageUrl) {
+                html += `<img src="${imageUrl}" alt="Post image" class="post-image">`;
             }
 
-            if (post.track_preview_url) {
+            if (musicData) {
                 html += `
                     <div class="post-music" data-track='${JSON.stringify({
-                        title: post.track_title,
-                        artist: post.track_artist,
-                        preview: post.track_preview_url,
-                        album: { cover_medium: post.track_album_art, title: post.track_album },
-                        id: post.track_id
+                        title: musicData.track_title,
+                        artist: musicData.track_artist,
+                        album: { cover_medium: musicData.track_album_art, title: musicData.track_album },
+                        id: musicData.track_id
                     })}'>
-                        <img src="${post.track_album_art}" alt="Album art" class="post-music-art">
+                        <img src="${musicData.track_album_art}" alt="Album art" class="post-music-art">
                         <div class="post-music-info">
-                            <div class="post-music-title">${post.track_title}</div>
-                            <div class="post-music-artist">${post.track_artist}</div>
+                            <div class="post-music-title">${musicData.track_title}</div>
+                            <div class="post-music-artist">${musicData.track_artist}</div>
                         </div>
                         <div class="post-music-play-icon">▶</div>
                     </div>
                 `;
 
-                // Store track data on the post card for scroll detection
                 postCard.dataset.hasMusic = 'true';
                 postCard.dataset.trackData = JSON.stringify({
-                    title: post.track_title,
-                    artist: post.track_artist,
-                    preview: post.track_preview_url,
-                    album: { cover_medium: post.track_album_art, title: post.track_album },
-                    id: post.track_id
+                    title: musicData.track_title,
+                    artist: musicData.track_artist,
+                    album: { cover_medium: musicData.track_album_art, title: musicData.track_album },
+                    id: musicData.track_id
                 });
             }
-
-            html += `
-                <div class="post-actions">
-                    <button class="post-action-btn like-btn" data-post-id="${post.id}">
-                        ❤ <span>${post.likes || 0}</span>
-                    </button>
-                </div>
-            `;
 
             postCard.innerHTML = html;
 
@@ -1502,91 +1626,77 @@
                 });
             }
 
-            // Add like handler
-            const likeBtn = postCard.querySelector('.like-btn');
-            likeBtn.addEventListener('click', () => likePost(post.id, likeBtn));
+            // Add "Add Music" button handler
+            const addMusicBtn = postCard.querySelector('.add-music-btn');
+            addMusicBtn.addEventListener('click', () => openAddMusicModal(post.id));
 
             feedContainer.appendChild(postCard);
         }
 
-        // This function will be defined later with scroll support
-
-        // Like a post
-        async function likePost(postId, button) {
-            try {
-                const response = await fetch(`${API_BASE}/posts/${postId}/like`, {
-                    method: 'POST'
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    button.classList.add('liked');
-                    button.querySelector('span').textContent = data.post.likes;
-                }
-            } catch (error) {
-                console.error('Error liking post:', error);
-            }
+        // Open add music modal for a post
+        let currentPostId = null;
+        function openAddMusicModal(postId) {
+            currentPostId = postId;
+            createPostModal.classList.add('show');
+            // Hide username, caption, and image upload fields
+            usernameInput.closest('.form-group').style.display = 'none';
+            captionInput.closest('.form-group').style.display = 'none';
+            fileUpload.style.display = 'none';
+            document.querySelector('.modal-title').textContent = 'Add Music to Post';
         }
 
-        // Submit new post
+        // Submit music to post
         submitPost.addEventListener('click', async () => {
-            const username = usernameInput.value.trim();
-            const caption = captionInput.value.trim();
+            // Check if we're adding music to an existing post
+            if (currentPostId) {
+                if (!selectedTrack) {
+                    alert('Please select a track');
+                    return;
+                }
 
-            if (!username) {
-                alert('Please enter a username');
+                submitPost.disabled = true;
+                submitPost.textContent = 'Adding...';
+
+                try {
+                    const response = await fetch(`${API_BASE}/post-music`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            post_id: currentPostId,
+                            track_id: selectedTrack.id,
+                            track_title: selectedTrack.title,
+                            track_artist: selectedTrack.artist.name,
+                            track_album: selectedTrack.album.title,
+                            track_album_art: selectedTrack.album.cover_medium
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Reset
+                        selectedTrack = null;
+                        selectedTrackContainer.innerHTML = '';
+                        currentPostId = null;
+
+                        // Close modal
+                        createPostModal.classList.remove('show');
+
+                        // Reload posts
+                        loadPostsAndSetupAutoPlay();
+                    } else {
+                        alert('Error adding music: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error adding music:', error);
+                    alert('Error adding music. Make sure the server is running!');
+                } finally {
+                    submitPost.disabled = false;
+                    submitPost.textContent = 'Post';
+                }
                 return;
-            }
-
-            submitPost.disabled = true;
-            submitPost.textContent = 'Posting...';
-
-            try {
-                const formData = new FormData();
-                formData.append('username', username);
-                if (caption) formData.append('caption', caption);
-                if (selectedImageFile) formData.append('image', selectedImageFile);
-
-                if (selectedTrack) {
-                    formData.append('track_id', selectedTrack.id);
-                    formData.append('track_title', selectedTrack.title);
-                    formData.append('track_artist', selectedTrack.artist.name);
-                    formData.append('track_album', selectedTrack.album.title);
-                    formData.append('track_preview_url', selectedTrack.preview);
-                    formData.append('track_album_art', selectedTrack.album.cover_medium);
-                }
-
-                const response = await fetch(`${API_BASE}/posts`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Reset form
-                    usernameInput.value = '';
-                    captionInput.value = '';
-                    imageInput.value = '';
-                    filePreview.innerHTML = '';
-                    selectedImageFile = null;
-                    selectedTrack = null;
-                    selectedTrackContainer.innerHTML = '';
-
-                    // Close modal
-                    createPostModal.classList.remove('show');
-
-                    // Reload posts and reinitialize auto-play
-                    loadPostsAndSetupAutoPlay();
-                } else {
-                    alert('Error creating post: ' + (data.error || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Error creating post:', error);
-                alert('Error creating post. Make sure the server is running!');
-            } finally {
-                submitPost.disabled = false;
-                submitPost.textContent = 'Post';
             }
         });
 
