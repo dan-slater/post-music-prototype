@@ -1664,10 +1664,37 @@
             });
         }
 
-        // Enhanced playTrackFromPost to support auto-play
-        function playTrackFromPost(track, isAutoPlay = false) {
+        // Fetch fresh preview URL from Deezer API using track ID
+        async function getFreshPreviewUrl(trackId) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'deezerTrack_' + Date.now();
+
+                window[callbackName] = function(data) {
+                    if (data && data.preview) {
+                        resolve(data.preview);
+                    } else {
+                        reject(new Error('No preview URL found'));
+                    }
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                };
+
+                const script = document.createElement('script');
+                script.src = `https://api.deezer.com/track/${trackId}?output=jsonp&callback=${callbackName}`;
+                script.onerror = function() {
+                    reject(new Error('Failed to fetch track data'));
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                };
+
+                document.body.appendChild(script);
+            });
+        }
+
+        // Enhanced playTrackFromPost to support auto-play and fresh URLs
+        async function playTrackFromPost(track, isAutoPlay = false) {
             // If manually clicking and same track is playing, pause it
-            if (!isAutoPlay && activeAudio.src === track.preview && !activeAudio.paused) {
+            if (!isAutoPlay && activeAudio.dataset.trackId === track.id && !activeAudio.paused) {
                 activeAudio.pause();
                 inactiveAudio.pause();
                 playPauseBtn.textContent = '▶';
@@ -1685,30 +1712,54 @@
             inactiveAudio.pause();
             inactiveAudio.currentTime = 0;
 
-            // Play the track (new track or auto-play)
-            activeAudio.src = track.preview;
-            activeAudio.loop = false; // Disable loop, we handle crossfade manually
-
-            // Handle autoplay - browsers block it without user interaction
-            const playPromise = activeAudio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    fadeIn(activeAudio);
-                }).catch(error => {
-                    // Autoplay was prevented - this is normal for auto-scroll
-                    if (!isAutoPlay) {
-                        console.error('Playback failed:', error);
-                    }
-                });
-            }
-
+            // Update UI immediately
             playerAlbumArt.src = track.album.cover_medium;
             playerTitle.textContent = track.title;
             playerArtist.textContent = track.artist;
             durationEl.textContent = '0:30';
-
             audioPlayer.classList.add('show');
-            playPauseBtn.textContent = '⏸';
+
+            try {
+                // Fetch fresh preview URL from Deezer API using track ID
+                const freshPreviewUrl = await getFreshPreviewUrl(track.id);
+
+                // Play the track with fresh URL
+                activeAudio.src = freshPreviewUrl;
+                activeAudio.dataset.trackId = track.id; // Store track ID for comparison
+                activeAudio.loop = false; // Disable loop, we handle crossfade manually
+
+                // Handle autoplay - browsers block it without user interaction
+                const playPromise = activeAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        fadeIn(activeAudio);
+                        playPauseBtn.textContent = '⏸';
+                    }).catch(error => {
+                        // Autoplay was prevented - this is normal for auto-scroll
+                        if (!isAutoPlay) {
+                            console.error('Playback failed:', error);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to get fresh preview URL:', error);
+                // Fallback to stored URL if API call fails
+                activeAudio.src = track.preview;
+                activeAudio.dataset.trackId = track.id;
+                activeAudio.loop = false;
+
+                const playPromise = activeAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        fadeIn(activeAudio);
+                        playPauseBtn.textContent = '⏸';
+                    }).catch(error => {
+                        if (!isAutoPlay) {
+                            console.error('Playback failed:', error);
+                        }
+                    });
+                }
+            }
         }
 
         // Modified loadPosts to setup observer after posts are loaded
